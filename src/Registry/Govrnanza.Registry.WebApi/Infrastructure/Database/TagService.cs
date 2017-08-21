@@ -86,26 +86,34 @@ namespace Govrnanza.Registry.WebApi.Infrastructure.Database
             if (api == null)
                 return UpdateResult.NotFound;
 
-            var dbApiTags = await _context.ApiTags.Where(x => tags.Contains(x.Tag.Name)).ToListAsync();
-            foreach(var incomingTag in tags)
+            var dbApiTags = await _context.ApiTags
+                .Include(x => x.Tag)
+                .Where(x => x.ApiId.Equals(api.Id)).ToListAsync();
+            //.Where(x => tags.Contains(x.Tag.Name)).ToListAsync();
+
+            // add new tags
+            foreach (var incomingTag in tags)
             {
                 if(!dbApiTags.Select(x => x.Tag.Name).Contains(incomingTag))
                 {
                     var existingTag = await _context.Tags.FirstOrDefaultAsync(x => x.Name.Equals(incomingTag));
                     if (existingTag == null)
+                    {
                         existingTag = new Tag() { Id = Guid.NewGuid(), Name = incomingTag };
+                        await _context.Tags.AddAsync(existingTag);
+                    }
 
-                    await _context.Tags.AddAsync(existingTag);
-
-                    dbApiTags.Add(new ApiTag()
+                    await _context.ApiTags.AddAsync(new ApiTag()
                     {
                         ApiId = api.Id,
-                        TagId = existingTag.Id
+                        TagId = existingTag.Id,
+                        Tag = existingTag
                     });
                 }
             }
 
-            foreach(var dbApiTag in new List<ApiTag>(dbApiTags))
+            // remove tags not supplied 
+            foreach (var dbApiTag in new List<ApiTag>(dbApiTags))
             {
                 var incomingTag = tags.FirstOrDefault(x => dbApiTag.Tag.Name.Equals(x));
                 if (incomingTag == null)

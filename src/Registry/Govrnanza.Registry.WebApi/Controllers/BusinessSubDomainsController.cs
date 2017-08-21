@@ -30,7 +30,7 @@ namespace Govrnanza.Registry.WebApi.Controllers
         {
             var results = await _businessDomainsService.GetSubDomainsAsync();
             var externalResults = Map.ToExternal(results);
-            return Ok(results);
+            return Ok(externalResults);
         }
 
         // GET api/v1/business-sub-domains/payroll
@@ -50,33 +50,46 @@ namespace Govrnanza.Registry.WebApi.Controllers
         public async Task<ActionResult> PostAsync([FromBody]BusinessSubDomainExternal subDomainExternal)
         {
             var subDomain = Map.ToInternal(subDomainExternal);
+            var domain = await _businessDomainsService.GetDomainAsync(subDomainExternal.ParentBusinessDomain);
+            if (domain.Result == GetResult.NotFound)
+                return BadRequest();
+
+            subDomain.ParentId = domain.Data.Id;
             await _businessDomainsService.AddSubDomainAsync(subDomain);
-            return Created($"api/business-sub-domains/{subDomain.Name}", subDomain);
+            return Created($"api/v1/business-sub-domains/{subDomain.Name}", subDomainExternal);
         }
 
-        // POST api/v1/business-sub-domains/move/business-domain
-        [HttpPost("/move/{businessDomain}")]
-        public async Task<ActionResult> PostAsync([FromRoute] string businessDomain, [FromBody]BusinessSubDomainExternal subDomainExternal)
+        // POST api/v1/business-sub-domains/supplierinvoicing/move/invoicing
+        [HttpPost("{businessSubDomain}/move/{businessDomain}")]
+        public async Task<ActionResult> PostAsync([FromRoute]string businessSubDomain, [FromRoute] string businessDomain)
         {
-            var subDomain = Map.ToInternal(subDomainExternal);
             var newDomain = await _businessDomainsService.GetDomainAsync(businessDomain);
             if (newDomain.Result == GetResult.NotFound)
                 return NotFound();
 
-            subDomain.ParentId = newDomain.Data.Id;
-            subDomain.Parent = newDomain.Data;
-            await _businessDomainsService.UpdateSubDomainAsync(subDomain, false);
-            return Created($"api/business-sub-domains/{subDomain.Name}", subDomain);
+            var subDomain = await _businessDomainsService.GetSubDomainAsync(businessSubDomain);
+            if (subDomain.Result == GetResult.NotFound)
+                return NotFound();
+
+            subDomain.Data.ParentId = newDomain.Data.Id;
+            subDomain.Data.Parent = newDomain.Data;
+            await _businessDomainsService.UpdateSubDomainAsync(subDomain.Data, false);
+            return Ok(Map.ToExternal(subDomain.Data));
         }
 
         // PUT api/v1/business-sub-domains
         [HttpPut]
         public async Task<ActionResult> PutAsync([FromBody]BusinessSubDomainExternal subDomainExternal)
         {
+            var domain = await _businessDomainsService.GetDomainAsync(subDomainExternal.ParentBusinessDomain);
+            if (domain.Result == GetResult.NotFound)
+                return BadRequest();
+
             var subDomain = Map.ToInternal(subDomainExternal);
+            subDomain.ParentId = domain.Data.Id;
             var updateResult = await _businessDomainsService.UpdateSubDomainAsync(subDomain, true);
             if (updateResult == UpdateResult.Inserted)
-                return Created($"api/business-sub-domains/{subDomain.Name}", subDomain);
+                return Created($"api/v1/business-sub-domains/{subDomain.Name}", subDomainExternal);
             else if (updateResult == UpdateResult.Updated)
                 return Ok();
             else if (updateResult == UpdateResult.NotFound)
