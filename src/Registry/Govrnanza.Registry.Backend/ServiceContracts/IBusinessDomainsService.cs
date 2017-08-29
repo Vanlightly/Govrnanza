@@ -1,12 +1,11 @@
-﻿using Govrnanza.Registry.WebApi.Model;
-using Govrnanza.Registry.WebApi.Model.Internal;
-using Govrnanza.Registry.WebApi.ServiceContracts.Responses;
+﻿using Govrnanza.Registry.Backend.ServiceContracts.Responses;
+using Govrnanza.Registry.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Govrnanza.Registry.WebApi.ServiceContracts
+namespace Govrnanza.Registry.Backend.ServiceContracts
 {
     public interface IBusinessDomainsService
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Govrnanza.Registry.WebApi.Model.Internal
+namespace Govrnanza.Registry.Core.Model
 {
     public class ApiTag
     {

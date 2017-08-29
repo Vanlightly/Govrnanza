@@ -4,12 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Govrnanza.Registry.WebApi.Model;
-using Govrnanza.Registry.WebApi.ServiceContracts;
-using Govrnanza.Registry.WebApi.ServiceContracts.Responses;
 using Govrnanza.Registry.WebApi.Docs;
-using Govrnanza.Registry.WebApi.Model.External;
-using Govrnanza.Registry.WebApi.Model.Internal;
 using Govrnanza.Registry.WebApi.Model.Mappers;
+using Govrnanza.Registry.Backend.ServiceContracts;
+using Govrnanza.Registry.Backend.ServiceContracts.Responses;
 
 namespace Govrnanza.Registry.WebApi.Controllers
 {
@@ -24,6 +22,12 @@ namespace Govrnanza.Registry.WebApi.Controllers
         private readonly ITagService _tagService;
         private readonly IBusinessDomainsService _businessDomainsService;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="apiService"></param>
+        /// <param name="tagService"></param>
+        /// <param name="businessDomainsService"></param>
         public ApisController(IApiService apiService,
             ITagService tagService,
             IBusinessDomainsService businessDomainsService)
@@ -57,7 +61,7 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// <returns>API object</returns>
         /// <remarks>If no API matches the name given then a 404 is returned.</remarks>
         [HttpGet("{apiName}")]
-        [ProducesResponseType(typeof(IEnumerable<ApiExternal>), 200)]
+        [ProducesResponseType(typeof(ApiExternal), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> GetAsync(string apiName)

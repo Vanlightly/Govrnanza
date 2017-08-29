@@ -1,14 +1,13 @@
-﻿using Govrnanza.Registry.WebApi.ServiceContracts;
+﻿using Govrnanza.Registry.Backend.ServiceContracts;
+using Govrnanza.Registry.Backend.ServiceContracts.Responses;
+using Govrnanza.Registry.Core.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Govrnanza.Registry.WebApi.Model;
-using Govrnanza.Registry.WebApi.ServiceContracts.Responses;
-using Govrnanza.Registry.WebApi.Model.Internal;
 
-namespace Govrnanza.Registry.WebApi.Infrastructure.Database
+namespace Govrnanza.Registry.Backend.Infrastructure.Database
 {
     public class BusinessDomainsService : IBusinessDomainsService
     {
@@ -40,10 +39,15 @@ namespace Govrnanza.Registry.WebApi.Infrastructure.Database
 
         public async Task<DeleteResult> DeleteDomainAsync(string domainName)
         {
-            var domain = await _context.BusinessDomains.FirstOrDefaultAsync(x => x.Name.Equals(domainName)); 
+            var domain = await _context.BusinessDomains
+                            .Include(x => x.SubDomains)
+                            .FirstOrDefaultAsync(x => x.Name.Equals(domainName)); 
 
             if (domain == null)
                 return DeleteResult.NotFound;
+
+            if (domain.SubDomains.Any())
+                return DeleteResult.NotDeletedDueToDependentObjects;
 
             _context.BusinessDomains.Remove(domain);
             await _context.SaveChangesAsync();

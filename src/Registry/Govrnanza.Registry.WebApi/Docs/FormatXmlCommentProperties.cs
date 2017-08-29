@@ -10,8 +10,16 @@ using System.Threading.Tasks;
 
 namespace Govrnanza.Registry.WebApi.Docs
 {
+    /// <summary>
+    /// Corrects some cases of bad formatting of XML comments in the Swagger UI
+    /// </summary>
     public class FormatXmlCommentProperties : IOperationFilter
     {
+        /// <summary>
+        /// Apply the formatting corrections
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="context"></param>
         public void Apply(Operation operation, OperationFilterContext context)
         {
             operation.Description = Formatted(operation.Description);

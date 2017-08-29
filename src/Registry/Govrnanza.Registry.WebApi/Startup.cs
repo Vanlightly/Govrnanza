@@ -8,25 +8,38 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Govrnanza.Registry.WebApi.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
-using Govrnanza.Registry.WebApi.Infrastructure.Database;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Govrnanza.Registry.WebApi.Docs;
+using Govrnanza.Registry.Backend.ServiceContracts;
+using Govrnanza.Registry.Backend.Infrastructure.Database;
 
 namespace Govrnanza.Registry.WebApi
 {
+    /// <summary>
+    /// Configures the application on start up
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Configuration abstraction
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IBusinessDomainsService, BusinessDomainsService>();
@@ -45,7 +58,11 @@ namespace Govrnanza.Registry.WebApi
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())

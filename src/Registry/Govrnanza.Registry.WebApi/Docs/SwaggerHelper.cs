@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Govrnanza.Registry.WebApi.Docs
 {
-    public class SwaggerHelper
+    internal class SwaggerHelper
     {
-        public static void ConfigureSwaggerGen(SwaggerGenOptions swaggerGenOptions)
+        internal static void ConfigureSwaggerGen(SwaggerGenOptions swaggerGenOptions)
         {
             var webApiAssembly = Assembly.GetEntryAssembly();
             AddSwaggerDocPerVersion(swaggerGenOptions, webApiAssembly);
@@ -80,12 +80,12 @@ Manage creation, update and deletion of the APIs in your registry. Classify your
             return apiVersion.Select(x => x.ToString());
         }
 
-        public static void ConfigureSwagger(SwaggerOptions swaggerOptions)
+        internal static void ConfigureSwagger(SwaggerOptions swaggerOptions)
         {
             swaggerOptions.RouteTemplate = "api-docs/{documentName}/swagger.json";
         }
 
-        public static void ConfigureSwaggerUI(SwaggerUIOptions swaggerUIOptions)
+        internal static void ConfigureSwaggerUI(SwaggerUIOptions swaggerUIOptions)
         {
             var webApiAssembly = Assembly.GetEntryAssembly();
             var apiVersions = GetApiVersions(webApiAssembly);

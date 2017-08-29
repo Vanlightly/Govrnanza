@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Govrnanza.Registry.WebApi.ServiceContracts.Responses
+namespace Govrnanza.Registry.Backend.ServiceContracts.Responses
 {
-    public enum DeleteResult
+    public enum UpdateResult
     {
         NotFound,
-        Deleted
+        Updated,
+        Inserted
     }
 }

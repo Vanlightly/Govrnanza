@@ -1,5 +1,4 @@
-﻿using Govrnanza.Registry.WebApi.Model.External;
-using Govrnanza.Registry.WebApi.Model.Internal;
+﻿using Govrnanza.Registry.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Govrnanza.Registry.WebApi.Model.Mappers
 {
-    public partial class Map
+    internal partial class Map
     {
-        public static BusinessDomain ToInternal(BusinessDomainExternal domainExternal)
+        internal static BusinessDomain ToInternal(BusinessDomainExternal domainExternal)
         {
             var domain = new BusinessDomain()
             {
@@ -29,7 +28,7 @@ namespace Govrnanza.Registry.WebApi.Model.Mappers
             return domain;
         }
 
-        public static BusinessSubDomain ToInternal(BusinessSubDomainExternal subDomainExternal)
+        internal static BusinessSubDomain ToInternal(BusinessSubDomainExternal subDomainExternal)
         {
             return new BusinessSubDomain()
             {
@@ -38,7 +37,7 @@ namespace Govrnanza.Registry.WebApi.Model.Mappers
             };
         }
 
-        public static Api ToInternal(ApiExternal apiExternal, Guid businessDomainId)
+        internal static Api ToInternal(ApiExternal apiExternal, Guid businessDomainId)
         {
             return new Api()
             {

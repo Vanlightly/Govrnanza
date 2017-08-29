@@ -1,12 +1,8 @@
-﻿using Govrnanza.Registry.WebApi.Model;
-using Govrnanza.Registry.WebApi.Model.Internal;
+﻿using Govrnanza.Registry.Core.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Govrnanza.Registry.WebApi.Infrastructure.Database
+namespace Govrnanza.Registry.Backend.Infrastructure.Database
 {
     public class RegistryDbContext : DbContext
     {
