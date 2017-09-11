@@ -9,6 +9,7 @@ namespace Govrnanza.Registry.Core.Model
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public List<BusinessSubDomain> SubDomains { get; set; }
+        public string Description { get; set; }
+        public IList<BusinessSubDomain> SubDomains { get; set; }
     }
 }

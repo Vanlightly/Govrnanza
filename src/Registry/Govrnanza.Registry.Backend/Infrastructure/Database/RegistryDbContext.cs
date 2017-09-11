@@ -10,6 +10,7 @@ namespace Govrnanza.Registry.Backend.Infrastructure.Database
         {}
 
         public virtual DbSet<Api> Apis { get; set; }
+        public virtual DbSet<ApiVersion> ApiVersions { get; set; }
         public virtual DbSet<BusinessDomain> BusinessDomains { get; set; }
         public virtual DbSet<BusinessSubDomain> BusinessSubDomains { get; set; }
         public virtual DbSet<ApiTag> ApiTags { get; set; }
@@ -17,7 +18,8 @@ namespace Govrnanza.Registry.Backend.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Entity<ApiVersion>()
+                .HasKey(x => new { x.ApiId, x.MajorVersion, x.MinorVersion });
         }
     }
 }

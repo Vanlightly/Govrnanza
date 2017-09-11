@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Govrnanza.Registry.WebApi.Model;
 using Govrnanza.Registry.WebApi.Docs;
 using Govrnanza.Registry.WebApi.Model.Mappers;
-using Govrnanza.Registry.Backend.ServiceContracts;
-using Govrnanza.Registry.Backend.ServiceContracts.Responses;
+using MediatR;
+using Govrnanza.Registry.WebApi.Model.BusinessDomains;
+using Govrnanza.Registry.Backend.Requests.BusinessDomains;
+using Govrnanza.Registry.Backend.Responses;
 
 namespace Govrnanza.Registry.WebApi.Controllers
 {
@@ -18,15 +19,15 @@ namespace Govrnanza.Registry.WebApi.Controllers
     [Route("api/v1/business-sub-domains")]
     public class BusinessSubDomainsController : Controller
     {
-        private readonly IBusinessDomainsService _businessDomainsService;
+        private readonly IMediator _mediator;
 
         /// <summary>
-        /// ctor
+        /// 
         /// </summary>
-        /// <param name="businessDomainsService"></param>
-        public BusinessSubDomainsController(IBusinessDomainsService businessDomainsService)
+        /// <param name="mediator"></param>
+        public BusinessSubDomainsController(IMediator mediator)
         {
-            _businessDomainsService = businessDomainsService;
+            _mediator = mediator;
         }
 
         // GET api/v1/business-sub-domains
@@ -35,12 +36,13 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// </summary>
         /// <returns>List of sub domains</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<BusinessSubDomainExternal>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<BusinessSubDomain>), 200)]
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> GetAsync()
         {
-            var results = await _businessDomainsService.GetSubDomainsAsync();
-            var externalResults = Map.ToExternal(results);
+            var getRequest = new GetSubDomains();
+            var response = await _mediator.Send(getRequest);
+            var externalResults = Map.ToExternal(response.Result);
             return Ok(externalResults);
         }
 
@@ -51,16 +53,20 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// <param name="subDomainName">The name of the sub domain</param>
         /// <returns>A Business Sub Domain</returns>
         [HttpGet("{subDomainName}")]
-        [ProducesResponseType(typeof(BusinessSubDomainExternal), 200)]
+        [ProducesResponseType(typeof(BusinessSubDomain), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> GetAsync([FromRoute]string subDomainName)
         {
-            var subDomain = await _businessDomainsService.GetSubDomainAsync(subDomainName);
-            if (subDomain.Result == GetResult.NotFound)
+            var getRequest = new GetSubDomain()
+            {
+                Name = subDomainName
+            };
+            var response = await _mediator.Send(getRequest);
+            if (response.Result == GetResult.NotFound)
                 return NotFound();
 
-            var externalResult = Map.ToExternal(subDomain.Data);
+            var externalResult = Map.ToExternal(response.Data);
             return Ok(externalResult);
         }
 
@@ -68,7 +74,7 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// <summary>
         /// Create a new business sub domain
         /// </summary>
-        /// <param name="subDomainExternal"></param>
+        /// <param name="subDomain"></param>
         /// <returns></returns>
         /// <remarks>
         /// ### REMARKS ###
@@ -79,16 +85,22 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 201)]
         [ProducesResponseType(typeof(void), 400)]
         [ProducesResponseType(typeof(void), 500)]
-        public async Task<ActionResult> PostAsync([FromBody]BusinessSubDomainExternal subDomainExternal)
+        public async Task<ActionResult> CreateDomainAsync([FromBody]BusinessSubDomain subDomain)
         {
-            var subDomain = Map.ToInternal(subDomainExternal);
-            var domain = await _businessDomainsService.GetDomainAsync(subDomainExternal.ParentBusinessDomain);
-            if (domain.Result == GetResult.NotFound)
+            var createSubDomain = new CreateSubDomain()
+            {
+                Name = subDomain.Name,
+                Description = subDomain.Description,
+                ParentDomainName = subDomain.ParentBusinessDomain
+            };
+            
+            var response = await _mediator.Send(createSubDomain);
+            if (response.Result == CreateResult.DependentObjectNotFound)
                 return BadRequest();
-
-            subDomain.ParentId = domain.Data.Id;
-            await _businessDomainsService.AddSubDomainAsync(subDomain);
-            return Created($"api/v1/business-sub-domains/{subDomain.Name}", subDomainExternal);
+            else if (response.Result == CreateResult.Created)
+                return Created($"api/v1/business-sub-domains/{subDomain.Name}", null);
+            else
+                return StatusCode(500); //  result not contemplated
         }
 
         // POST api/v1/business-sub-domains/supplierinvoicing/move/invoicing
@@ -110,25 +122,26 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> PostAsync([FromRoute]string businessSubDomain, [FromRoute] string businessDomain)
         {
-            var newDomain = await _businessDomainsService.GetDomainAsync(businessDomain);
-            if (newDomain.Result == GetResult.NotFound)
-                return NotFound();
+            var moveRequest = new MoveSubDomain()
+            {
+                SubDomainName = businessSubDomain,
+                DestinationDomainName = businessDomain
+            };
 
-            var subDomain = await _businessDomainsService.GetSubDomainAsync(businessSubDomain);
-            if (subDomain.Result == GetResult.NotFound)
+            var response = await _mediator.Send(moveRequest);
+            if (response.Result == MoveResult.NotFound)
                 return NotFound();
+            else if (response.Result == MoveResult.Moved)
+                return Ok();
 
-            subDomain.Data.ParentId = newDomain.Data.Id;
-            subDomain.Data.Parent = newDomain.Data;
-            await _businessDomainsService.UpdateSubDomainAsync(subDomain.Data, false);
-            return Ok(Map.ToExternal(subDomain.Data));
+            return StatusCode(500); // result not contemplated
         }
 
         // PUT api/v1/business-sub-domains
         /// <summary>
-        /// Create or update a business sub domain
+        /// Updates an existing business sub domain
         /// </summary>
-        /// <param name="subDomainExternal">The sub domain</param>
+        /// <param name="subDomainUpdate">The sub domain</param>
         /// <returns></returns>
         /// <remarks>
         /// ### REMARKS ###
@@ -141,23 +154,22 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 500)]
-        public async Task<ActionResult> PutAsync([FromBody]BusinessSubDomainExternal subDomainExternal)
+        public async Task<ActionResult> PutAsync([FromBody]BusinessSubDomainUpdate subDomainUpdate)
         {
-            var domain = await _businessDomainsService.GetDomainAsync(subDomainExternal.ParentBusinessDomain);
-            if (domain.Result == GetResult.NotFound)
-                return BadRequest();
+            var updateSubDomain = new UpdateSubDomain()
+            {
+                Name = subDomainUpdate.Name,
+                NewName = subDomainUpdate.NewName,
+                NewDescription = subDomainUpdate.NewDescription
+            };
 
-            var subDomain = Map.ToInternal(subDomainExternal);
-            subDomain.ParentId = domain.Data.Id;
-            var updateResult = await _businessDomainsService.UpdateSubDomainAsync(subDomain, true);
-            if (updateResult == UpdateResult.Inserted)
-                return Created($"api/v1/business-sub-domains/{subDomain.Name}", subDomainExternal);
-            else if (updateResult == UpdateResult.Updated)
-                return Ok();
-            else if (updateResult == UpdateResult.NotFound)
+            var response = await _mediator.Send(updateSubDomain);
+            if (response.Result == UpdateResult.NotFound)
                 return NotFound();
-            else
+            else if (response.Result == UpdateResult.Updated)
                 return Ok();
+            else
+                return StatusCode(500); // result not contemplated;
         }
 
         // DELETE api/v1/business-sub-domains/sales
@@ -172,11 +184,20 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> DeleteAsync([FromRoute]string subDomainName)
         {
-            var deleteResult = await _businessDomainsService.DeleteSubDomainAsync(subDomainName);
-            if (deleteResult == DeleteResult.NotFound)
-                return NotFound();
+            var deleteSubDomain = new DeleteSubDomain()
+            {
+                Name = subDomainName
+            };
 
-            return Ok();
+            var response = await _mediator.Send(deleteSubDomain);
+            if (response.Result == DeleteResult.NotFound)
+                return NotFound();
+            else if (response.Result == DeleteResult.NotDeletedDueToDependentObjects)
+                return BadRequest(response.Description);
+            else if (response.Result == DeleteResult.Deleted)
+                return Ok();
+            else
+                return StatusCode(500); // result not contemplated
         }
     }
 }

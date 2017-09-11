@@ -1,4 +1,5 @@
-﻿using Govrnanza.Registry.Core.Model;
+﻿using Internal = Govrnanza.Registry.Core.Model;
+using External = Govrnanza.Registry.WebApi.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,64 +9,47 @@ namespace Govrnanza.Registry.WebApi.Model.Mappers
 {
     internal partial class Map
     {
-        internal static BusinessDomainExternal ToExternal(BusinessDomain domain)
+        internal static External.BusinessDomains.BusinessDomain ToExternal(Internal.BusinessDomain domain) => new External.BusinessDomains.BusinessDomain()
         {
-            return new BusinessDomainExternal()
+            Name = domain.Name,
+            Description = domain.Description,
+            SubDomains = domain.SubDomains.Select(x => ToExternal(x)).ToList()
+        };
+
+        internal static IEnumerable<External.BusinessDomains.BusinessDomain> ToExternal(IEnumerable<Internal.BusinessDomain> domains) => domains.Select(x => ToExternal(x));
+
+        internal static External.BusinessDomains.BusinessSubDomain ToExternal(Internal.BusinessSubDomain subDomain) => new External.BusinessDomains.BusinessSubDomain()
+        {
+            Name = subDomain.Name,
+            Description = subDomain.Description,
+            ParentBusinessDomain = subDomain.Parent.Name
+        };
+
+        internal static IEnumerable<External.BusinessDomains.BusinessSubDomain> ToExternal(IEnumerable<Internal.BusinessSubDomain> subDomains) => subDomains.Select(x => ToExternal(x));
+
+        internal static External.Apis.ApiFull ToExternal(Internal.Api api)
+        {
+            var apiExternal = new External.Apis.ApiFull()
             {
-                Name = domain.Name,
-                SubDomains = domain.SubDomains.Select(x => ToExternal(x)).ToList()
-            };
-        }
-
-        internal static IEnumerable<BusinessDomainExternal> ToExternal(IEnumerable<BusinessDomain> domains)
-        {
-            return domains.Select(x => ToExternal(x));
-        }
-
-        internal static BusinessSubDomainExternal ToExternal(BusinessSubDomain subDomain)
-        {
-            return new BusinessSubDomainExternal()
-            {
-                Name = subDomain.Name,
-                Description = subDomain.Description,
-                ParentBusinessDomain = subDomain.Parent.Name
-            };
-        }
-
-        internal static IEnumerable<BusinessSubDomainExternal> ToExternal(IEnumerable<BusinessSubDomain> subDomains)
-        {
-            return subDomains.Select(x => ToExternal(x));
-        }
-
-        internal static ApiExternal ToExternal(Api api, IEnumerable<Tag> tags)
-        {
-            var apiExternal = new ApiExternal()
-            {
+                BusinessOwner = api.BusinessOwner,
                 Description = api.Description,
                 Name = api.Name,
                 SubDomainName = api.BusinessSubDomain.Name,
-                Tags = tags.Select(x => x.Name).ToList()
+                Tags = api.ApiTags.Select(x => x.Tag.Name).ToList(),
+                TechnicalOwner = api.TechnicalOwner,
+                Title = api.Title,
+                Versions = api.Versions.Select(x => new VersionApi()
+                {
+                    ApiName = api.Name,
+                    MajorVersion = x.MajorVersion,
+                    MinorVersion = x.MinorVersion,
+                    Status = (VersionStatusExternal)(int)x.Status
+                }).ToList()
             };
 
             return apiExternal;
         }
 
-        internal static IEnumerable<ApiExternal> ToExternal(IEnumerable<Api> apis, IEnumerable<ApiTag> apiTags)
-        {
-            foreach(var api in apis)
-            {
-                var apiTagsOfApi = apiTags.Where(x => x.ApiId.Equals(api.Id))
-                    .Select(x => x.Tag.Name)
-                    .ToList();
-
-                yield return new ApiExternal()
-                {
-                    Description = api.Description,
-                    Name = api.Name,
-                    SubDomainName = api.BusinessSubDomain.Name,
-                    Tags = apiTagsOfApi
-                };
-            }
-        }
+        internal static IEnumerable<External.Apis.ApiFull> ToExternal(IEnumerable<Internal.Api> apis) => apis.Select(x => ToExternal(x));
     }
 }

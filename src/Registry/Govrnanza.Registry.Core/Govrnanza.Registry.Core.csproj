@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Model\obj\**" />
+    <EmbeddedResource Remove="Model\obj\**" />
+    <None Remove="Model\obj\**" />
+  </ItemGroup>
+
 </Project>

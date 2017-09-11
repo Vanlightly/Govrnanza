@@ -12,8 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Govrnanza.Registry.WebApi.Docs;
-using Govrnanza.Registry.Backend.ServiceContracts;
 using Govrnanza.Registry.Backend.Infrastructure.Database;
+using MediatR;
+using Govrnanza.Registry.Backend.Responses;
 
 namespace Govrnanza.Registry.WebApi
 {
@@ -42,12 +43,10 @@ namespace Govrnanza.Registry.WebApi
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IBusinessDomainsService, BusinessDomainsService>();
-            services.AddTransient<IApiService, ApiService>();
-            services.AddTransient<ITagService, TagService>();
-
             services.AddDbContext<RegistryDbContext>(opt =>
                    opt.UseSqlServer(Configuration.GetConnectionString("Registry")));
+
+            services.AddMediatR(typeof(Startup).Assembly, typeof(GetResult).Assembly);
 
             services.AddSwaggerGen(SwaggerHelper.ConfigureSwaggerGen);
 

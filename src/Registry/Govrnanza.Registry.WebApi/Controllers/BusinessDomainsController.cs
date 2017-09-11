@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Govrnanza.Registry.WebApi.Model;
 using Govrnanza.Registry.WebApi.Docs;
 using Govrnanza.Registry.WebApi.Model.Mappers;
-using Govrnanza.Registry.Backend.ServiceContracts;
-using Govrnanza.Registry.Backend.ServiceContracts.Responses;
+using MediatR;
+using Govrnanza.Registry.Backend.Requests.BusinessDomains;
+using Govrnanza.Registry.Backend.Responses;
+using Govrnanza.Registry.WebApi.Model.BusinessDomains;
 
 namespace Govrnanza.Registry.WebApi.Controllers
 {
@@ -18,15 +19,15 @@ namespace Govrnanza.Registry.WebApi.Controllers
     [Route("api/v1/business-domains")]
     public class BusinessDomainsController : Controller
     {
-        private readonly IBusinessDomainsService _businessDomainsService;
+        private readonly IMediator _mediator;
 
         /// <summary>
-        /// ctor
+        /// 
         /// </summary>
-        /// <param name="businessDomainsService"></param>
-        public BusinessDomainsController(IBusinessDomainsService businessDomainsService)
+        /// <param name="mediator"></param>
+        public BusinessDomainsController(IMediator mediator)
         {
-            _businessDomainsService = businessDomainsService;
+            _mediator = mediator;
         }
 
         // GET api/v1/business-domains
@@ -35,12 +36,13 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// </summary>
         /// <returns>Business Domains</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<BusinessDomainExternal>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<BusinessDomain>), 200)]
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> GetAsync()
         {
-            var results = await _businessDomainsService.GetDomainsAsync();
-            var externalResults = Map.ToExternal(results);
+            var getDomainsRequest = new GetDomains();
+            var resonse = await _mediator.Send(getDomainsRequest);
+            var externalResults = Map.ToExternal(resonse.Result);
             return Ok(externalResults);
         }
 
@@ -51,16 +53,17 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// <param name="domainName">The name of the business domain to be returned</param>
         /// <returns>The business domain</returns>
         [HttpGet("{domainName}")]
-        [ProducesResponseType(typeof(BusinessDomainExternal), 200)]
+        [ProducesResponseType(typeof(BusinessDomain), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> GetAsync(string domainName)
         {
-            var domain = await _businessDomainsService.GetDomainAsync(domainName);
-            if (domain.Result == GetResult.NotFound)
+            var getDomainRequest = new GetDomain() { Name = domainName };
+            var response = await _mediator.Send(getDomainRequest);
+            if (response.Result == GetResult.NotFound)
                 return NotFound();
 
-            var externalResult = Map.ToExternal(domain.Data);
+            var externalResult = Map.ToExternal(response.Data);
             return Ok(externalResult);
         }
 
@@ -68,7 +71,7 @@ namespace Govrnanza.Registry.WebApi.Controllers
         /// <summary>
         /// Create a new business domain
         /// </summary>
-        /// <param name="domainExternal"></param>
+        /// <param name="businessDomain"></param>
         /// <returns></returns>
         /// <remarks>
         /// ### REMARKS ###
@@ -78,18 +81,33 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(void), 201)]
         [ProducesResponseType(typeof(void), 500)]
-        public async Task<ActionResult> PostAsync([FromBody]BusinessDomainExternal domainExternal)
+        public async Task<ActionResult> PostAsync([FromBody]BusinessDomain businessDomain)
         {
-            var domain = Map.ToInternal(domainExternal);
-            await _businessDomainsService.AddDomainAsync(domain);
-            return Created($"api/business-domains/{domain.Name}", domain);
+            var createDomain = new CreateDomain()
+            {
+                Name = businessDomain.Name,
+                Description = businessDomain.Description,
+                SubDomains = businessDomain.SubDomains.Select(x => new CreateSubDomain()
+                {
+                    Name = x.Name,
+                    Description = x.Description,
+                    ParentDomainName = businessDomain.Name
+                }).ToList()
+            };
+
+            var response = await _mediator.Send(createDomain);
+            if (response.Result == CreateResult.Created)
+                return Created($"api/business-domains/{businessDomain.Name}", null);
+            else
+                return StatusCode(500);
+
         }
 
         // PUT api/v1/business-domains
         /// <summary>
-        /// Creates or updates a business domain object.
+        /// Updates an existing business domain object.
         /// </summary>
-        /// <param name="domainExternal">A business domain object</param>
+        /// <param name="businessDomainUpdate">A business domain update request</param>
         /// <returns></returns>
         /// <remarks>
         /// ### REMARKS ###
@@ -100,22 +118,30 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(void), 201)]
         [ProducesResponseType(typeof(void), 500)]
-        public async Task<ActionResult> PutAsync([FromBody]BusinessDomainExternal domainExternal)
+        public async Task<ActionResult> PutAsync([FromBody]BusinessDomainUpdate businessDomainUpdate)
         {
-            var domain = Map.ToInternal(domainExternal);
-            var updateResult = await _businessDomainsService.UpdateDomainAsync(domain, true);
+            var updateDomain = new UpdateDomain()
+            {
+                Name = businessDomainUpdate.Name,
+                NewName = businessDomainUpdate.NewName,
+                UpdatedSubDomains = businessDomainUpdate.SubDomains.Select(x => new UpdateSubDomain()
+                {
+                    Name = x.Name,
+                    NewDescription = x.NewDescription,
+                    NewName = x.NewName
+                }).ToList()
+            };
+            var updateResponse = await _mediator.Send(updateDomain);
 
-            if (updateResult == UpdateResult.Inserted)
-                return Created($"api/business-domains/{domain.Name}", domain);
-            else if (updateResult == UpdateResult.Updated)
+            if (updateResponse.Result == UpdateResult.Updated)
                 return Ok();
-            else if (updateResult == UpdateResult.NotFound)
+            else if (updateResponse.Result == UpdateResult.NotFound)
                 return NotFound();
             else
-                return Ok();
+                return StatusCode(500); // result no contemplated
         }
 
-        // DELETE api/v1/business-domains/sales
+        // DELETE api/v1/business-domains/{domainName}
         /// <summary>
         /// Deletes a given business domain
         /// </summary>
@@ -135,11 +161,15 @@ namespace Govrnanza.Registry.WebApi.Controllers
         [ProducesResponseType(typeof(void), 500)]
         public async Task<ActionResult> DeleteAsync(string domainName)
         {
-            var deleteResult = await _businessDomainsService.DeleteDomainAsync(domainName);
-            if (deleteResult == DeleteResult.NotFound)
+            var deleteDomain = new DeleteDomain()
+            {
+                Name = domainName
+            };
+            var deleteResponse = await _mediator.Send(deleteDomain);
+            if (deleteResponse.Result == DeleteResult.NotFound)
                 return NotFound();
-            else if (deleteResult == DeleteResult.NotDeletedDueToDependentObjects)
-                return BadRequest();
+            else if (deleteResponse.Result == DeleteResult.NotDeletedDueToDependentObjects)
+                return BadRequest(deleteResponse.Description);
             
             return Ok();
         }

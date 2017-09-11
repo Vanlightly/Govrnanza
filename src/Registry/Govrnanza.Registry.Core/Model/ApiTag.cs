@@ -8,6 +8,7 @@ namespace Govrnanza.Registry.Core.Model
     public class ApiTag
     {
         public Guid Id { get; set; }
+
         public Guid ApiId { get; set; }
         public Api Api { get; set; }
 
