@@ -29,6 +29,9 @@ namespace Govrnanza.Registry.WebApi.Docs
 
         private static void AddSwaggerDocPerVersion(SwaggerGenOptions swaggerGenOptions, Assembly webApiAssembly)
         {
+            var apiVersionDescriptions = new ApiVersionDescriptions();
+            apiVersionDescriptions.AddDescription("1", File.ReadAllText("Docs\\ApiVersion1Description.md"));
+
             var apiVersions = GetApiVersions(webApiAssembly);
             foreach (var apiVersion in apiVersions)
             {
@@ -37,16 +40,7 @@ namespace Govrnanza.Registry.WebApi.Docs
                     {
                         Title = "Govrnanza Registry",
                         Version = $"v{apiVersion}",
-                        Description = @"REST services for managing your API ecosystem
-
-## Business Domains and Sub Domains ##
-Breakdown your business into domains and sub domains in order to better manage your APIs.
-
-## Tags ##
-Create tags to help you classify your APIs on multiple dimensions or link APIs that form cross-cutting business processes
-
-## API Management ##
-Manage creation, update and deletion of the APIs in your registry. Classify your APIs by business sub domain and add tags for further classification.",
+                        Description = apiVersionDescriptions.GetDescription(apiVersion),
                         Contact = new Contact()
                         {
                             Name = "Govrnanza",
@@ -91,11 +85,13 @@ Manage creation, update and deletion of the APIs in your registry. Classify your
             var apiVersions = GetApiVersions(webApiAssembly);
             foreach (var apiVersion in apiVersions)
             {
-                swaggerUIOptions.SwaggerEndpoint($"/api-docs/v{apiVersion}/swagger.json", $"V{apiVersion} Docs");
+                swaggerUIOptions.SwaggerEndpoint($"v{apiVersion}/swagger.json", $"V{apiVersion} Docs");
             }
             swaggerUIOptions.RoutePrefix = "api-docs";
             swaggerUIOptions.ShowRequestHeaders();
             swaggerUIOptions.ShowJsonEditor();
+            swaggerUIOptions.InjectStylesheet("theme-feeling-blue-v2.css");
+            swaggerUIOptions.InjectOnCompleteJavaScript("CustomisedSwagger.js");
         }
     }
 }
