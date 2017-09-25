@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Govrnanza.Registry.WebApi", "Govrnanza.Registry.WebApi\Govrnanza.Registry.WebApi.csproj", "{58F2934E-B613-4A94-8467-7460A97958DF}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Govrnanza.Registry.Core", "Govrnanza.Registry.Core\Govrnanza.Registry.Core.csproj", "{7B3FF653-648D-49A7-B868-F565391C9BA4}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Govrnanza_Registry", "Governanza_Registry\Govrnanza_Registry.sqlproj", "{B05669AA-A928-4FC4-A673-A8ACF7D220A1}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{B05669AA-A928-4FC4-A673-A8ACF7D220A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B05669AA-A928-4FC4-A673-A8ACF7D220A1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B05669AA-A928-4FC4-A673-A8ACF7D220A1}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

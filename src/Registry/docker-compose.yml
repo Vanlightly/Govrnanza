@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  govrnanza.registry.webapi:
+    image: govrnanza.registry.webapi
+    build:
+      context: ./Govrnanza.Registry.WebApi
+      dockerfile: Dockerfile

@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  govrnanza.registry.webapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"

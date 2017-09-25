@@ -30,7 +30,8 @@ namespace Govrnanza.Registry.WebApi.Docs
         private static void AddSwaggerDocPerVersion(SwaggerGenOptions swaggerGenOptions, Assembly webApiAssembly)
         {
             var apiVersionDescriptions = new ApiVersionDescriptions();
-            apiVersionDescriptions.AddDescription("1", File.ReadAllText("Docs\\ApiVersion1Description.md"));
+            var mdPath = Path.Combine("Docs", "ApiVersion1Description.md");
+            apiVersionDescriptions.AddDescription("1", File.ReadAllText(mdPath));
 
             var apiVersions = GetApiVersions(webApiAssembly);
             foreach (var apiVersion in apiVersions)
