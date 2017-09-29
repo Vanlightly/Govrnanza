@@ -15,6 +15,7 @@ using Govrnanza.Registry.WebApi.Docs;
 using Govrnanza.Registry.Backend.Infrastructure.Database;
 using MediatR;
 using Govrnanza.Registry.Backend.Responses;
+using Govrnanza.Registry.WebApi.Secrets;
 
 namespace Govrnanza.Registry.WebApi
 {
@@ -27,9 +28,12 @@ namespace Govrnanza.Registry.WebApi
         /// ctor
         /// </summary>
         /// <param name="configuration"></param>
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory, IHostingEnvironment env)
         {
             Configuration = configuration;
+            HostingEnvironment = env;
+            LoggerFactory = loggerFactory;
+            StartupLogger = loggerFactory.CreateLogger("Startup");
         }
 
         /// <summary>
@@ -37,6 +41,12 @@ namespace Govrnanza.Registry.WebApi
         /// </summary>
         public IConfiguration Configuration { get; }
 
+        public IHostingEnvironment HostingEnvironment { get; }
+
+        public ILoggerFactory LoggerFactory { get; }
+
+        public ILogger StartupLogger { get; }
+        
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
@@ -44,7 +54,7 @@ namespace Govrnanza.Registry.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<RegistryDbContext>(opt =>
-                   opt.UseSqlServer(Configuration.GetConnectionString("Registry")));
+                    opt.UseSqlServer(SecretsResolver.ResolveEmbeddedSecret(HostingEnvironment.EnvironmentName, Configuration,  Configuration.GetConnectionString("Registry"))));
 
             services.AddMediatR(typeof(Startup).Assembly, typeof(GetResult).Assembly);
 

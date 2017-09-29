@@ -32,6 +32,9 @@
     <ProjectReference Include="..\Govrnanza.Registry.Core\Govrnanza.Registry.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="Docs\ApiVersion1Description.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

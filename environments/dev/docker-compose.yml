@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  registry:
+    image: localhost:5000/govrnanza.registry.webapi:dev
+    deploy:
+      replicas: 1
+        restart_policy:
+          condition: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80:80"
+    networks:
+      - web
+
+networks:
+  web:
