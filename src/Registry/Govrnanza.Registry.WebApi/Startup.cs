@@ -15,7 +15,6 @@ using Govrnanza.Registry.WebApi.Docs;
 using Govrnanza.Registry.Backend.Infrastructure.Database;
 using MediatR;
 using Govrnanza.Registry.Backend.Responses;
-using Govrnanza.Registry.WebApi.Secrets;
 
 namespace Govrnanza.Registry.WebApi
 {
@@ -34,6 +33,8 @@ namespace Govrnanza.Registry.WebApi
             HostingEnvironment = env;
             LoggerFactory = loggerFactory;
             StartupLogger = loggerFactory.CreateLogger("Startup");
+
+            StartupLogger.LogInformation("Startup instantiated");
         }
 
         /// <summary>
@@ -53,8 +54,9 @@ namespace Govrnanza.Registry.WebApi
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            StartupLogger.LogInformation("ConfigureServices started");
             services.AddDbContext<RegistryDbContext>(opt =>
-                    opt.UseSqlServer(SecretsResolver.ResolveEmbeddedSecret(HostingEnvironment.EnvironmentName, Configuration,  Configuration.GetConnectionString("Registry"))));
+                    opt.UseSqlServer(Configuration.GetConnectionString("Registry")));
 
             services.AddMediatR(typeof(Startup).Assembly, typeof(GetResult).Assembly);
 
@@ -65,6 +67,8 @@ namespace Govrnanza.Registry.WebApi
                 j.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
                 j.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
             });
+
+            StartupLogger.LogInformation("ConfigureServices complete");
         }
 
         /// <summary>
@@ -74,6 +78,7 @@ namespace Govrnanza.Registry.WebApi
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            StartupLogger.LogInformation("Configure started");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -84,6 +89,7 @@ namespace Govrnanza.Registry.WebApi
             app.UseSwaggerUI(SwaggerHelper.ConfigureSwaggerUI);
 
             app.UseMvc();
+            StartupLogger.LogInformation("Configure complete");
         }
     }
 }

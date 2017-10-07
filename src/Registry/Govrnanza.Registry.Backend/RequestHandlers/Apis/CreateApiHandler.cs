@@ -3,6 +3,7 @@ using Govrnanza.Registry.Backend.Requests.Apis;
 using Govrnanza.Registry.Backend.Responses;
 using Govrnanza.Registry.Core.Model;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,12 +15,15 @@ namespace Govrnanza.Registry.Backend.RequestHandlers.Apis
     {
         private readonly IMediator _mediator;
         private readonly RegistryDbContext _context;
+        private readonly IConfiguration _configuration;
 
         public CreateApiHandler(RegistryDbContext context,
-            IMediator mediator)
+            IMediator mediator,
+            IConfiguration configuration)
         {
             _context = context;
             _mediator = mediator;
+            _configuration = configuration;
         }
 
         public async Task<Response<CreateResult>> Handle(CreateApi request)
@@ -57,8 +61,8 @@ namespace Govrnanza.Registry.Backend.RequestHandlers.Apis
                     new ApiVersion()
                     {
                         ApiId = apiId,
-                        MajorVersion = 0,
-                        MinorVersion = 1,
+                        MajorVersion = _configuration.GetValue<int>("InceptionMajorVersion"),
+                        MinorVersion = _configuration.GetValue<int>("InceptionMinorVersion"),
                         Status = VersionStatus.Inception
                     }
                 }

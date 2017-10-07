@@ -4,5 +4,8 @@ services:
   govrnanza.registry.webapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - REGISTRY_CONFIG_FILE=devAppSettings.json
+      - REGISTRY_DB_PASSWORD_SECRET_FILE=InsecureSecretFiles/RegistryDbPassword.txt
+      - REGISTRY_USE_DOCKER_SECRETS=false
     ports:
       - "80"

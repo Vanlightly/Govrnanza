@@ -1,0 +1,13 @@
+{
+    "ConnectionStrings": {
+        "Registry": "Server=192.168.1.35,1433;Database=Govrnanza_Registry;User Id=RegistryApp;Password={secret:REGISTRY_DB_PASSWORD};MultipleActiveResultSets=True"
+    },
+    "InceptionMajorVersion": 0,
+    "InceptionMinorVersion": 1,
+    "Logging": {
+        "IncludeScopes": false,
+        "LogLevel": {
+            "Default": "Warning"
+        }
+    }
+}

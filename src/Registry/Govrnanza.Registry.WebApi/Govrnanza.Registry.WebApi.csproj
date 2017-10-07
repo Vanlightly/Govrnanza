@@ -28,6 +28,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Extensions\Configuration\Govrnanza.Extensions.Configuration.csproj" />
     <ProjectReference Include="..\Govrnanza.Registry.Backend\Govrnanza.Registry.Backend.csproj" />
     <ProjectReference Include="..\Govrnanza.Registry.Core\Govrnanza.Registry.Core.csproj" />
   </ItemGroup>

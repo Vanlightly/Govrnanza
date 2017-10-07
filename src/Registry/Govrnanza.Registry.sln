@@ -13,6 +13,10 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Govrnanza_Registry", "Gover
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{6993C47C-8C9A-4A1E-A3D4-32FD5146852B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Govrnanza.Extensions.Configuration", "..\Extensions\Configuration\Govrnanza.Extensions.Configuration.csproj", "{95E3D042-69F5-426A-A66A-1B8CBB1FC874}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,9 +45,16 @@ Global
 		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2A83306-B46F-4CDE-B5EC-4BCFF89AFE25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{95E3D042-69F5-426A-A66A-1B8CBB1FC874} = {6993C47C-8C9A-4A1E-A3D4-32FD5146852B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {255B2E58-F80B-4867-95B6-309D128D59C4}

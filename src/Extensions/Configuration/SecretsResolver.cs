@@ -6,11 +6,18 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Govrnanza.Registry.WebApi.Secrets
+namespace Govrnanza.Extensions.Configuration
 {
-    public class SecretsResolver
+    internal class SecretsResolver
     {
-        public static string ResolveEmbeddedSecret(string environmentName, IConfiguration configuration, string inputText)
+        private SecretsMode _secretsMode;
+        
+        public SecretsResolver(SecretsMode secretsMode)
+        {
+            _secretsMode = secretsMode;
+        }
+
+        public string ResolveEmbeddedSecret(string inputText)
         {
             var secretsResults = Regex.Matches(inputText, @"(?<secret>\{secret:[\s\w-\.]+\})");
 
@@ -19,29 +26,25 @@ namespace Govrnanza.Registry.WebApi.Secrets
                 var groupText = secretTagResult.Groups[0].Value;
                 var secretId = groupText.Substring(8, groupText.Length - 9).Trim();
 
-                string storedSecret = string.Empty;
-                if (environmentName.Equals("Development"))
-                {
-                    storedSecret = configuration[$"Secret_{secretId}"];
-                }
-                else
-                {
-                    storedSecret = LoadSecret(secretId);
-                }
-                
+                string storedSecret = LoadSecret(secretId);
                 inputText = inputText.Replace(groupText, storedSecret);
             }
 
             return inputText;
         }
 
-        private static string LoadSecret(string secretId)
+        private string LoadSecret(string secretId)
         {
             var pathToSecret = Environment.GetEnvironmentVariable(secretId + "_SECRET_FILE");
+            if(_secretsMode == SecretsMode.DockerSecrets)
+            {
+                if (!pathToSecret.StartsWith("/run/secrets/", StringComparison.OrdinalIgnoreCase))
+                    throw new ConfigurationException("Cannot load secrets from local files when run in Enforce mode");
+            }
 
             if (!File.Exists(pathToSecret))
             {
-                throw new Exception($"SecretId: {secretId} does not exist at " + pathToSecret + " or this service does not have access to it");
+                throw new ConfigurationException($"SecretId: {secretId} does not exist at " + pathToSecret + " or this service does not have access to it");
             }
 
             var storedSecret = File.ReadAllText(pathToSecret);
