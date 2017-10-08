@@ -49,6 +49,7 @@ namespace Govrnanza.Extensions.Configuration
 
         private byte[] LoadJsonFile(string path)
         {
+            var files = Directory.GetFiles(".");
             if (!File.Exists(path))
                 throw new ConfigurationException($"The file at path: {path} does not exist");
 

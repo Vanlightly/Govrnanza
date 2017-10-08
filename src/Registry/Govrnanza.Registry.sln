@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Govrnanza.Extensions.Configuration", "..\Extensions\Configuration\Govrnanza.Extensions.Configuration.csproj", "{95E3D042-69F5-426A-A66A-1B8CBB1FC874}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Govrnanza.Registry.WebApi.IntegrationTests", "Govrnanza.Registry.WebApi.IntegrationTests\Govrnanza.Registry.WebApi.IntegrationTests.csproj", "{DB449CA6-78DD-4A42-AF7C-5FBBA0B34358}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95E3D042-69F5-426A-A66A-1B8CBB1FC874}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB449CA6-78DD-4A42-AF7C-5FBBA0B34358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB449CA6-78DD-4A42-AF7C-5FBBA0B34358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB449CA6-78DD-4A42-AF7C-5FBBA0B34358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB449CA6-78DD-4A42-AF7C-5FBBA0B34358}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

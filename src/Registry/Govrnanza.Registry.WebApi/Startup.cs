@@ -79,14 +79,13 @@ namespace Govrnanza.Registry.WebApi
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             StartupLogger.LogInformation("Configure started");
-            if (env.IsDevelopment())
+            
+            if (!env.EnvironmentName.Equals("Test"))
             {
-                app.UseDeveloperExceptionPage();
+                app.UseStaticFiles();
+                app.UseSwagger(SwaggerHelper.ConfigureSwagger);
+                app.UseSwaggerUI(SwaggerHelper.ConfigureSwaggerUI);
             }
-
-            app.UseStaticFiles();
-            app.UseSwagger(SwaggerHelper.ConfigureSwagger);
-            app.UseSwaggerUI(SwaggerHelper.ConfigureSwaggerUI);
 
             app.UseMvc();
             StartupLogger.LogInformation("Configure complete");

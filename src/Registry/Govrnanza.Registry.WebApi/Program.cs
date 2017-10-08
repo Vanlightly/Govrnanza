@@ -17,35 +17,28 @@ namespace Govrnanza.Registry.WebApi
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var appRootPath = Directory.GetCurrentDirectory();
+            BuildWebHost(appRootPath, args).Run();
         }
 
-        /// <summary>
-        /// Creates the IWebHost
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static IWebHost BuildWebHost(string[] args)
+        public static IWebHost BuildWebHost(string appRootPath, string[] args)
         {
-            var logFactory = new LoggerFactory()
-                    .AddConsole(LogLevel.Debug)
-                    .AddDebug();
+            var webHostBuilder = GetWebHostBuilder(appRootPath, args);
+            return webHostBuilder.Build();
+        }
 
-            var logger = logFactory.CreateLogger<Program>();
-            logger.LogInformation("Starting " + Environment.MachineName);
 
+        public static IWebHostBuilder GetWebHostBuilder(string appRootPath, string[] args)
+        {
             var webHostBuilder = new WebHostBuilder()
                 .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseContentRoot(appRootPath)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var secretsMode = GetSecretsMode(hostingContext.HostingEnvironment);
                     config.AddGovrnanzaConfig(secretsMode, "REGISTRY_CONFIG_FILE");
                 })
-                .UseStartup<Startup>()
-                .Build();
-
-            logger.LogInformation("Host built");
+                .UseStartup<Startup>();
 
             return webHostBuilder;
         }
